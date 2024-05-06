@@ -1,0 +1,65 @@
+name: gh-build
+
+on:
+  workflow_call:
+    inputs:
+      registry:
+        description: "Container registry"
+        default: "ghcr.io"
+        required: false
+        type: string
+      registry-username:
+        description: "Container registry username"
+        default: ${{ github.actor }}
+        required: false
+        type: string
+      image-name:
+        description: "Container image name"
+        default: ${{ github.repository }}
+        required: false
+        type: string
+      image-tag:
+        description: "Container image tag"
+        default: ${{ github.sha }}
+        required: false
+        type: string
+    secrets:
+      registry-password:
+        description: "Container registry password"
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      packages: write
+      contents: read
+      attestations: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ inputs.registry-username }}
+          password: ${{ secrets.registry-password }}
+
+      - name: Build and push image
+        id: push
+        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
+        with:
+          context: .
+          push: true
+          tags: ${{ inputs.registry }}/${{ inputs.image-name }}:${{ inputs.image-tag }}
+
+      - name: Attest
+        uses: actions/attest-build-provenance@897ed5eab6ed058a474202017ada7f40bfa52940 # v1.0.0
+        with:
+          subject-name: ${{ inputs.registry }}/${{ inputs.image-name }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true

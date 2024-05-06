@@ -1,0 +1,16 @@
+name: gh-complete
+
+on: [ workflow_dispatch ]
+
+jobs:
+  build:
+    uses: ./.github/workflows/gh-build.yaml
+    with:
+      image-name: 'forrin/in-toto-workflows' # image name must be lowercase
+    secrets:
+      registry-password: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      id-token: write
+      packages: write
+      contents: read
+      attestations: write
