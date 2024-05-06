@@ -18,12 +18,18 @@ openssl x509 -in cert.pem -text
 
 Again, the assumption is that the workflow is semi trusted. For example, a build workflow could checkout a different git sha, however the attestation would show the sha for the executed commit and not the cloned commit within the resolved dependencies.
 
+Through the use of OIDC, short lived certificates, and reusable workflows it's possible to have strong guarantees of the integrity of a software artifact.
+
 ## gh-complete Workflow
 
 `gh-complete` is a workflow designed as the primary orchestrating workflow. This workflow leverages other workflows such as; build, scan, release, etc.
+
+This workflow could be owned by an engineering team seeking to build and release their software.
 
 ## gh-build Reusable Workflow
 
 `gh-build` is an example of a [Github Reusable Workflow](https://docs.github.com/en/actions/using-workflows/reusing-workflows) for building a containerized application with [Docker](https://www.docker.com/).
 
 This workflow is designed to build and push a container image to ghcr, and generate an in-toto [Provenance Attestation](https://github.com/in-toto/attestation/blob/main/spec/predicates/provenance.md) which is then attached to the callers repository.
+
+This workflow could be owned by a build engineering team.
