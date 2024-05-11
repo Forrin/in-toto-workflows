@@ -1,0 +1,51 @@
+name: gh-scan
+
+on:
+  workflow_call:
+    inputs:
+      registry:
+        description: "Container registry"
+        default: "ghcr.io"
+        required: false
+        type: string
+      image-name:
+        description: "Container image name"
+        default: ${{ github.repository }}
+        required: false
+        type: string
+      image-tag:
+        description: "Container image tag"
+        default: ${{ github.sha }}
+        required: false
+        type: string
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      packages: write
+      contents: read
+      attestations: write
+
+    steps:
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@b2933f565dbc598b29947660e66259e3c7bc8561 # v0.20.0
+        with:
+          image-ref: ${{ inputs.registry }}/${{ inputs.image-name }}:${{ inputs.image-tag }}
+          format: 'cosign-vuln'
+          output: 'trivy-results.json'
+
+      - name: Get digest
+        id: digest
+        run: |
+          echo "digest=$(jq -r .scanner.result.Metadata.ImageID trivy-results.json)" >> $GITHUB_OUTPUT
+
+      - name: Attest
+        uses: actions/attest@32f49af6653ef9b7d1a40182d53fc9ebd53447d8
+        with:
+          subject-name: ${{ inputs.registry }}/${{ inputs.image-name }}
+          subject-digest: ${{ steps.digest.outputs.digest }}
+          predicate-type: 'https://in-toto.io/attestation/vulns/v0.1'
+          predicate-path: './trivy-results.json'

@@ -14,3 +14,13 @@ jobs:
       packages: write
       contents: read
       attestations: write
+  scan:
+    uses: ./.github/workflows/gh-scan.yaml
+    needs: [ build ]
+    with:
+      image-name: 'forrin/in-toto-workflows' # image name must be lowercase
+    permissions:
+      id-token: write
+      packages: write
+      contents: read
+      attestations: write
