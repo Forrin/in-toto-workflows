@@ -33,3 +33,9 @@ This workflow could be owned by an engineering team seeking to build and release
 This workflow is designed to build and push a container image to ghcr, and generate an in-toto [Provenance Attestation](https://github.com/in-toto/attestation/blob/main/spec/predicates/provenance.md) which is then attached to the callers repository.
 
 This workflow could be owned by a build engineering team.
+
+## gh-scan Reusable Workflow
+
+`gh-scan` is for running container or other security scans. Trivy is used for this usecase.
+
+This workflow could be owned by a security team.
