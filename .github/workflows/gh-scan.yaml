@@ -40,7 +40,7 @@ jobs:
       - name: Get digest
         id: digest
         run: |
-          echo "digest=$(jq -r .scanner.result.Metadata.ImageID trivy-results.json)" >> $GITHUB_OUTPUT
+          echo "digest=$(jq -r .scanner.result.Metadata.RepoDigests[0] trivy-results.json | awk -F '@' '{ print $2 }')" >> $GITHUB_OUTPUT
 
       - name: Attest
         uses: actions/attest@32f49af6653ef9b7d1a40182d53fc9ebd53447d8
