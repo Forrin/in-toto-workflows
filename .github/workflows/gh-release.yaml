@@ -1,0 +1,71 @@
+name: gh-release
+
+on:
+  workflow_call:
+    inputs:
+      owner:
+        description: "Attestation owner download scope"
+        default: ${{ github.repository_owner }}
+        required: false
+        type: string
+      registry:
+        description: "Container registry"
+        default: "ghcr.io"
+        required: false
+        type: string
+      registry-username:
+        description: "Container registry username"
+        default: ${{ github.actor }}
+        required: false
+        type: string
+      image-name:
+        description: "Container image name"
+        default: ${{ github.repository }}
+        required: false
+        type: string
+      image-tag:
+        description: "Container image tag"
+        default: ${{ github.sha }}
+        required: false
+        type: string
+    secrets:
+      registry-password:
+        description: "Container registry password"
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      packages: write
+      contents: read
+      attestations: write
+
+    steps:
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ inputs.registry-username }}
+          password: ${{ secrets.registry-password }}
+
+      - name: Download Attestations
+        run: |
+          docker login ghcr.io
+          gh attestation download oci://${{ inputs.registry }}/${{ inputs.image-name }}:${{ inputs.image-tag }} -o ${{ inputs.owner }}
+
+      - name: Verify Attestations
+        run: |
+          docker login ghcr.io
+          gh attestation verify oci://${{ inputs.registry }}/${{ inputs.image-name }}:${{ inputs.image-tag }} -o ${{ inputs.owner }} --bundle $(ls *.jsonl)
+
+      # TODO - Add release attestation
+      # - name: Attest
+      #   uses: actions/attest@32f49af6653ef9b7d1a40182d53fc9ebd53447d8 # v1.1.1
+      #   with:
+      #     subject-name: ${{ inputs.registry }}/${{ inputs.image-name }}
+      #     subject-digest: ${{ steps.digest.outputs.digest }}
+      #     predicate-type: 'https://in-toto.io/attestation/vulns/v0.1'
+      #     predicate-path: './trivy-results.json'

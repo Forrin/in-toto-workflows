@@ -3,22 +3,34 @@ name: gh-complete
 on: [ workflow_dispatch ]
 
 jobs:
-  build:
-    uses: ./.github/workflows/gh-build.yaml
+  # build:
+  #   uses: ./.github/workflows/gh-build.yaml
+  #   with:
+  #     image-name: 'forrin/in-toto-workflows' # image name must be lowercase
+  #   secrets:
+  #     registry-password: ${{ secrets.GITHUB_TOKEN }}
+  #   permissions:
+  #     id-token: write
+  #     packages: write
+  #     contents: read
+  #     attestations: write
+  # scan:
+  #   uses: ./.github/workflows/gh-scan.yaml
+  #   needs: [ build ]
+  #   with:
+  #     image-name: 'forrin/in-toto-workflows' # image name must be lowercase
+  #   permissions:
+  #     id-token: write
+  #     packages: write
+  #     contents: read
+  #     attestations: write
+  release:
+    uses: ./.github/workflows/gh-release.yaml
     with:
       image-name: 'forrin/in-toto-workflows' # image name must be lowercase
+      image-tag: 'sha256-05efdf15a77731613ea7f9267c2f0ca4543d8d5763f22d90f994bb5f52a48368'
     secrets:
       registry-password: ${{ secrets.GITHUB_TOKEN }}
-    permissions:
-      id-token: write
-      packages: write
-      contents: read
-      attestations: write
-  scan:
-    uses: ./.github/workflows/gh-scan.yaml
-    needs: [ build ]
-    with:
-      image-name: 'forrin/in-toto-workflows' # image name must be lowercase
     permissions:
       id-token: write
       packages: write
