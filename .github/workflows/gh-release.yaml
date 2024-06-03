@@ -52,16 +52,12 @@ jobs:
           password: ${{ secrets.registry-password }}
 
       - name: Download Attestations
-        run: |
-          docker login ghcr.io
-          gh attestation download oci://${{ inputs.registry }}/${{ inputs.image-name }}:${{ inputs.image-tag }} -o ${{ inputs.owner }}
+        run: gh attestation download oci://${{ inputs.registry }}/${{ inputs.image-name }}:${{ inputs.image-tag }} -o ${{ inputs.owner }}
         env:
           GH_TOKEN: ${{ github.token }}
 
       - name: Verify Attestations
-        run: |
-          docker login ghcr.io
-          gh attestation verify oci://${{ inputs.registry }}/${{ inputs.image-name }}:${{ inputs.image-tag }} -o ${{ inputs.owner }} --bundle $(ls *.jsonl)
+        run: gh attestation verify oci://${{ inputs.registry }}/${{ inputs.image-name }}:${{ inputs.image-tag }} -o ${{ inputs.owner }} --bundle $(ls *.jsonl)
         env:
           GH_TOKEN: ${{ github.token }}
 
