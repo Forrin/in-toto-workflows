@@ -28,7 +28,7 @@ jobs:
     uses: ./.github/workflows/gh-release.yaml
     with:
       image-name: 'forrin/in-toto-workflows' # image name must be lowercase
-      image-tag: 'sha256-05efdf15a77731613ea7f9267c2f0ca4543d8d5763f22d90f994bb5f52a48368'
+      image-tag: '15f5ca8c47ad7ffca1d7cc7e9996c57010b024e7'
     secrets:
       registry-password: ${{ secrets.GITHUB_TOKEN }}
     permissions:
